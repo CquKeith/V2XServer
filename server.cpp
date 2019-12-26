@@ -5,19 +5,28 @@
 #include <iostream>
 
 using namespace std;
-
-Server::Server(QObject *parent) :
+/**
+ * @brief Server::Server
+ * @param parent
+ * @param port
+ * @param includeSender 发送时是否包括发送者本身 0:不包括 1:包括
+ * @param heartBeatTime 多少秒没有活动 则自动关闭连接
+ */
+Server::Server(QObject *parent, int port, int includeSender, int heartBeatTime) :
     QTcpServer(parent)
 {
-    port = 12345;
+    this->port = port;
 
-    if(!this->listen(QHostAddress::AnyIPv4,port))
+    this->include_sender = includeSender;
+    this->heart_beat_time = heartBeatTime;
+
+
+    if(!this->listen(QHostAddress::AnyIPv4,this->port))
     {
-//        QMessageBox::critical(0,tr("服务器"),tr("无法启动服务器：%1.").arg(this->errorString()));
         qDebug() << "无法启动服务器：" << this->errorString();
 
     }else{
-        qDebug()<<"成功监听:"<<port;
+        qDebug()<<"成功监听:"<<this->port;
     }
 }
 /*
@@ -27,7 +36,7 @@ Server::Server(QObject *parent) :
 void Server::incomingConnection(qintptr socketDescriptor)
 {
 
-    TcpClientSocket *tcpclientsocket = new TcpClientSocket(this);
+    TcpClientSocket *tcpclientsocket = new TcpClientSocket(this->heart_beat_time,this);
     connect(tcpclientsocket,&TcpClientSocket::dataToServer,this,&Server::sendToAllClient);
 //    connect(ui_counter,SIGNAL(signal_DeskNotValid(Server *,int)),tcpclientsocket,SLOT(slotDeskNotValid(Server *,int)));
 //    connect(tcpclientsocket,&TcpClientSocket::aboutToClose,this,&Server::)
@@ -67,13 +76,21 @@ void Server::sendToAllClient(QByteArray ba,int socketDesc)
     for(int i=0;i<TcpClientSocketList.count();i++)
     {
         TcpClientSocket *item = TcpClientSocketList.at(i);
-        if(item->socketDescriptor()!=socketDesc)
+
+        //是否屏蔽发送者
+        if(include_sender)
         {
-            item->resetHeatBeatTime();
             item->write(ba);
             item->flush();
 //            item->waitForBytesWritten();
+        }else{
+            if(item->socketDescriptor()!=socketDesc){
+                item->write(ba);
+                item->flush();
+            }
         }
+
+        item->resetHeatBeatTime(heart_beat_time);
     }
 }
 

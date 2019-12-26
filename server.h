@@ -13,7 +13,7 @@ class Server : public QTcpServer
 {
      Q_OBJECT  //添加Q_OBJECT宏用于信号的槽的通信
 public:
-    Server(QObject *parent);
+    Server(QObject *parent,int port,int includeSender=0,int heartBeatTime=120);
     //用于与每一个客户端连接的TcpClientSock
      QList<TcpClientSocket *> TcpClientSocketList;
 
@@ -23,13 +23,13 @@ protected:
     void incomingConnection(qintptr socketDescriptor );
 private:
     int port;
+    int include_sender;
+    int heart_beat_time;
 
 private slots:
     void slotDisconnected(int description);
 
     void sendToAllClient(QByteArray ba,int socketDesc);
-
-
 
 };
 

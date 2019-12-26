@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-TcpClientSocket::TcpClientSocket(QObject *parent)
+TcpClientSocket::TcpClientSocket(int heartBeatTime, QObject *parent)
 
 {
     connect(this,SIGNAL(readyRead()),this,SLOT(dataReceived()));
@@ -10,7 +10,8 @@ TcpClientSocket::TcpClientSocket(QObject *parent)
     connect(this,SIGNAL(disconnected()),this,SLOT(slotDisconnected()));
 
 //    socketDescriptor = this->socketDescriptor;
-    heart_beat_current = HEART_BEAT_NUMBER;
+    heart_beat_current = heartBeatTime;
+    HEART_BEAT_NUMBER = heartBeatTime;
     timer = new QTimer(this);
     connect(timer,&QTimer::timeout,this,[=]{
         if(--heart_beat_current <= 0){
@@ -27,7 +28,7 @@ void TcpClientSocket::dataReceived()
     /*
      * 继承自 QIODevice 的方法，返回可用数据的长度
     */
-   resetHeatBeatTime();
+   resetHeatBeatTime(HEART_BEAT_NUMBER);
    while(bytesAvailable()>0)
    {
        QByteArray datagram;
