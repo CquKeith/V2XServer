@@ -38,14 +38,14 @@ void Server::incomingConnection(qintptr socketDescriptor)
 
     TcpClientSocket *tcpclientsocket = new TcpClientSocket(this->heart_beat_time,this);
     connect(tcpclientsocket,&TcpClientSocket::dataToServer,this,&Server::sendToAllClient);
-//    connect(ui_counter,SIGNAL(signal_DeskNotValid(Server *,int)),tcpclientsocket,SLOT(slotDeskNotValid(Server *,int)));
-//    connect(tcpclientsocket,&TcpClientSocket::aboutToClose,this,&Server::)
+    //    connect(ui_counter,SIGNAL(signal_DeskNotValid(Server *,int)),tcpclientsocket,SLOT(slotDeskNotValid(Server *,int)));
+    //    connect(tcpclientsocket,&TcpClientSocket::aboutToClose,this,&Server::)
 
 
     connect(tcpclientsocket,SIGNAL(signal_discon(int)),this,SLOT(slotDisconnected(int)));
 
     tcpclientsocket->setSocketDescriptor(socketDescriptor);
-   // 在服务器端中记录刚刚登陆进来的客户端
+    // 在服务器端中记录刚刚登陆进来的客户端
     TcpClientSocketList.append(tcpclientsocket);
     qDebug()<<socketDescriptor<<" online";
 
@@ -78,18 +78,12 @@ void Server::sendToAllClient(QByteArray ba,int socketDesc)
         TcpClientSocket *item = TcpClientSocketList.at(i);
 
         //是否屏蔽发送者
-        if(include_sender)
-        {
+        if(include_sender!=0 || item->socketDescriptor()!=socketDesc){
+//            qDebug()<<include_sender<<item->socketDescriptor()<<socketDesc;
             item->write(ba);
             item->flush();
-//            item->waitForBytesWritten();
-        }else{
-            if(item->socketDescriptor()!=socketDesc){
-                item->write(ba);
-                item->flush();
-            }
+          //item->waitForBytesWritten();
         }
-
         item->resetHeatBeatTime(heart_beat_time);
     }
 }

@@ -3,7 +3,7 @@
 #include "server.h"
 class Server;
 
-#define INCLUDE_SENDER "inlude_sender"
+#define INCLUDE_SENDER "include_sender"
 #define HEART_BEAT "heart_beat"
 #define PORT "port"
 #define HELP "help"
