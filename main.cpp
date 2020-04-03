@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 
     if(argMap.find(HELP) != argMap.end()){
 
-        qDebug()<<"accep parameter table:"<<endl
+        qDebug()<<"accept parameter table:"<<endl
                 <<"-"<<INCLUDE_SENDER<<"1:server will brocast all user include sender,0:will exclude sender"<<endl
                 <<"-"<<HEART_BEAT<<"server will disconnect this unactivity link after seconds, unit:s"<<endl
                 <<"-"<<PORT<<"server will listen on this port"<<endl;
